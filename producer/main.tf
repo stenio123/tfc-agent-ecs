@@ -116,9 +116,14 @@ data "aws_iam_policy_document" "agent_policy_definition" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "agent_task_policy" {
+resource "aws_iam_role_policy_attachment" "agent_ecs_task_policy" {
   role       = aws_iam_role.agent.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "agent_ec2_task_policy" {
+  role       = aws_iam_role.agent.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
 
 # a role for terraform consumer to assume into
@@ -147,6 +152,20 @@ data "aws_iam_policy_document" "dev_assume_role_policy_definition" {
 
 resource "aws_iam_role_policy_attachment" "dev_ec2_role_attach" {
   role       = aws_iam_role.terraform_dev_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
+
+# another role for terraform consumer to assume into
+# you'll need to customize IAM policies to access resources as desired
+resource "aws_iam_role" "terraform_sandbox_role" {
+  name = "terraform_sandbox_role"
+  tags = local.common_tags
+
+  assume_role_policy = data.aws_iam_policy_document.dev_assume_role_policy_definition.json
+}
+
+resource "aws_iam_role_policy_attachment" "sandbox_ec2_role_attach" {
+  role       = aws_iam_role.terraform_sandbox_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
 
