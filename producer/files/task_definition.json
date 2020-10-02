@@ -3,8 +3,8 @@
     "name": "tfc-agent",
     "image": "hashicorp/tfc-agent:latest",
     "essential": true,
-    "memory": 256,
-    "cpu": 128,
+    "memory": 2048,
+    "cpu": 1024,
     "environment": [
       {
         "name": "TFC_AGENT_SINGLE",

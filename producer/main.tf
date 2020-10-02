@@ -27,8 +27,8 @@ resource "aws_ecs_task_definition" "tfc_agent" {
   container_definitions    = data.template_file.agent.rendered
   execution_role_arn       = aws_iam_role.agent_init.arn
   task_role_arn            = aws_iam_role.agent.arn
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 1024
+  memory                   = 2048
   tags                     = local.common_tags
 }
 
@@ -121,9 +121,25 @@ resource "aws_iam_role_policy_attachment" "agent_ecs_task_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+#################### GIVING PERMISSIONS DIRECTLY TO AGENT #############################
 resource "aws_iam_role_policy_attachment" "agent_ec2_task_policy" {
   role       = aws_iam_role.agent.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "agent_cloudwatch_task_policy" {
+  role       = aws_iam_role.agent.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "agent_ecsa_task_policy" {
+  role       = aws_iam_role.agent.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "agent_iam_task_policy" {
+  role       = aws_iam_role.agent.name
+  policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess"
 }
 
 # a role for terraform consumer to assume into
@@ -200,6 +216,5 @@ resource "aws_security_group_rule" "allow_egress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks = [
-  "0.0.0.0/0"]
+  cidr_blocks       = ["0.0.0.0/0"]
 }
