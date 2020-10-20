@@ -27,8 +27,8 @@ resource "aws_ecs_task_definition" "tfc_agent" {
   container_definitions    = data.template_file.agent.rendered
   execution_role_arn       = aws_iam_role.agent_init.arn
   task_role_arn            = aws_iam_role.agent.arn
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 2048
+  memory                   = 4096
   tags                     = local.common_tags
 }
 
@@ -111,10 +111,33 @@ data "aws_iam_policy_document" "agent_policy_definition" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "agent_task_policy" {
+# see if this is needed
+# resource "aws_iam_role_policy_attachment" "agent_task_policy" {
+#   role       = aws_iam_role.agent.name
+#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+# }
+
+#################### GIVING PERMISSIONS DIRECTLY TO AGENT #############################
+resource "aws_iam_role_policy_attachment" "agent_ec2_task_policy" {
   role       = aws_iam_role.agent.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
+
+resource "aws_iam_role_policy_attachment" "agent_cloudwatch_task_policy" {
+  role       = aws_iam_role.agent.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "agent_ecsa_task_policy" {
+  role       = aws_iam_role.agent.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "agent_iam_task_policy" {
+  role       = aws_iam_role.agent.name
+  policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess"
+}
+#################### END ############################################################
 
 # a role for terraform consumer to assume into
 # you'll need to customize IAM policies to access resources as desired
