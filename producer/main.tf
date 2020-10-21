@@ -137,6 +137,12 @@ resource "aws_iam_role_policy_attachment" "agent_iam_task_policy" {
   role       = aws_iam_role.agent.name
   policy_arn = "arn:aws:iam::aws:policy/IAMFullAccess"
 }
+
+resource "aws_iam_role_policy_attachment" "agent_dns_task_policy" {
+  role       = aws_iam_role.agent.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonRoute53FullAccess"
+}
+
 #################### END ############################################################
 
 # a role for terraform consumer to assume into
